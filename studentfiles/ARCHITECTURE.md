@@ -127,9 +127,8 @@ Cosmos DB offers higher capacity but requires minimum 400 RU/s (~$24/month). Tab
 
 ### Prerequisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download)
+- [Node.js](https://nodejs.org/) (>=18.0)
 - [Azurite](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite) (Azure Storage Emulator)
-- [Node.js](https://nodejs.org/) (for npm-based Azurite install, optional)
 
 ### Install and Run Azurite
 

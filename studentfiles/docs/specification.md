@@ -199,13 +199,13 @@ A real-time collaborative checkbox application where multiple users can toggle 1
 
 ### Acceptance Criteria
 
-- [ ] Application connects to Azurite when configured for local development
-- [ ] Application connects to Azure Table Storage when production connection string provided
-- [ ] All 1,000 checkbox entities created on first startup
-- [ ] Reading all checkboxes returns exactly 1,000 entities
-- [ ] Concurrent updates to different checkboxes succeed without conflict
-- [ ] Concurrent updates to same checkbox result in one 412 response
-- [ ] ETag returned from write operations differs from input ETag
+- [x] Application connects to Azurite when configured for local development
+- [x] Application connects to Azure Table Storage when production connection string provided
+- [x] All 1,000 checkbox entities created on first startup
+- [x] Reading all checkboxes returns exactly 1,000 entities
+- [x] Concurrent updates to different checkboxes succeed without conflict
+- [x] Concurrent updates to same checkbox result in one 412 response
+- [x] ETag returned from write operations differs from input ETag
 
 ### Test Cases
 
