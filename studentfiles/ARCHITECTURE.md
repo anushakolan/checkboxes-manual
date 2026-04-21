@@ -10,10 +10,11 @@ A real-time collaborative checkbox application where multiple users can toggle 1
 
 The frontend is an optimized web client designed for real-time collaboration:
 - **State Management**: Maintains an in-memory representation of all 1,000 checkboxes, tracking both the `isChecked` status and `etag` for each.
-- **Optimistic UI**: User toggles immediately update the visual state (< 16ms latency) before awaiting server confirmation.
+- **Optimistic UI**: User toggles immediately update the visual state (< 16ms latency) and show a pending indicator before awaiting server confirmation.
+- **Offline & Queueing Support**: Intelligently queues toggle requests when the user goes offline or during network interruptions, processing them transparently once the connection recovers. 
 - **Real-Time Sync**: Uses a persistent SignalR connection to instantly reflect changes made by other users.
-- **Conflict Handling**: Intercepts HTTP 412 sequence conflicts, refetches state, and automatically retries (up to 3 times) before reverting the UI.
-- **Rendering**: Implements a responsive CSS Grid (40×25 on desktop) optimized to keep DOM node count low (≤ 3,000) while supporting keyboard navigation and screen readers.
+- **Conflict Handling**: Intercepts HTTP 412 sequence conflicts, refetches state, and automatically reverts or retries to stay in sync.
+- **Rendering**: Implements a responsive CSS Grid (40×25 on desktop) optimized to keep DOM node count low (≤ 3,000) while supporting full keyboard navigation and screen readers (`aria-live` regions and specific status indicators).
 
 ### API Layer
 

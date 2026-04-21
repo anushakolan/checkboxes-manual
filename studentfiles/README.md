@@ -10,7 +10,12 @@ A scaled-down learning version of the viral [One Million Checkboxes](https://en.
 
 ## Getting Started
 
-<!-- TODO: Add setup instructions after making technology decisions -->
+1. Navigate to the project directory: `cd studentfiles`
+2. Install dependencies: `npm install`
+3. Start the application backend server: `node src/index.js`
+4. Open your browser to `http://localhost:3000`
+
+Requirements: Node.js (v18+)
 
 ## Development
 
@@ -25,7 +30,15 @@ See `docs/specification.md` for the full specification (created during the lab).
 
 ## Project Structure
 
-<!-- TODO: Update as the project grows -->
+```text
+├── docs/                # System specifications and technical details
+├── public/              # Client-side interactive UI (HTML/CSS/JS)
+├── src/                 # Node.js / Express backend server
+├── tests/               # Jest test suites verifying against specification
+├── AGENTS.md            # Copilot Agent definition/rules
+├── ARCHITECTURE.md      # Scalable sync/signalR architecture overview
+└── target/              # Miscellaneous configurations
+```
 
 ## License
 
