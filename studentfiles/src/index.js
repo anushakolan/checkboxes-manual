@@ -2,6 +2,8 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
+const crypto = require('crypto');
+const { WebSocketServer } = require('ws');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -50,6 +52,60 @@ app.get('/api/checkboxes', getLimit, async (req, res) => {
     }
 });
 
+const longPollingClients = new Map();
+
+// SignalR Negotiate endpoint
+app.post('/hubs/checkboxes/negotiate', (req, res) => {
+    const connectionId = crypto.randomUUID();
+    res.json({
+        connectionId: connectionId,
+        connectionToken: connectionId,
+        availableTransports: [
+            {
+                transport: "WebSockets",
+                transferFormats: ["Text"]
+            },
+            {
+                transport: "LongPolling",
+                transferFormats: ["Text"]
+            }
+        ]
+    });
+});
+
+// SignalR Long-Polling endpoint
+app.get('/hubs/checkboxes', (req, res) => {
+    const id = req.query.id;
+    if (!id) return res.status(400).send("ID required");
+    res.setHeader('Content-Type', 'text/plain;charset=UTF-8');
+    
+    // Support handshake over LP
+    if (!longPollingClients.has(id)) {
+        res.send('{}\x1e');
+        return;
+    }
+    
+    // Keep connection alive for 30s
+    req.on('close', () => {
+        longPollingClients.delete(id);
+    });
+    
+    longPollingClients.set(id, res);
+    setTimeout(() => {
+        if (longPollingClients.has(id)) {
+            // No updates within window, just return empty to maintain
+            res.send('');
+            longPollingClients.delete(id);
+        }
+    }, 25000);
+});
+
+// SignalR LP POST message endpoint
+app.post('/hubs/checkboxes', (req, res) => {
+    // Acknowledge LP updates (often just ignoring client messages since updates are one way)
+    res.send('');
+});
+
 app.put('/api/checkboxes/:id', putLimit, async (req, res) => {
     try {
         const id = Number(req.params.id);
@@ -70,6 +126,12 @@ app.put('/api/checkboxes/:id', putLimit, async (req, res) => {
         
         // A4-F06, A4-F05 PUT response includes new ETag
         res.setHeader('ETag', result.etag);
+        
+        // I5-F03 Broadcast toggle events to all connected clients after successful server update
+        if (req.app.locals.broadcastCheckboxUpdate) {
+            req.app.locals.broadcastCheckboxUpdate(id, result.isChecked, result.etag);
+        }
+
         res.status(200).json({ isChecked: result.isChecked, etag: result.etag });
     } catch (err) {
         if (err.statusCode === 412) {
@@ -85,9 +147,64 @@ app.put('/api/checkboxes/:id', putLimit, async (req, res) => {
 });
 
 storage.initialize().then(() => {
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
         console.log(`Server listening on port ${PORT}`);
     });
+
+    const wss = new WebSocketServer({ noServer: true });
+    
+    server.on('upgrade', (request, socket, head) => {
+        if (request.url.startsWith('/hubs/checkboxes')) {
+            wss.handleUpgrade(request, socket, head, (ws) => {
+                wss.emit('connection', ws, request);
+            });
+        } else {
+            socket.destroy();
+        }
+    });
+
+    // Handle SignalR WebSocket Protocol
+    wss.on('connection', (ws) => {
+        ws.on('message', (message) => {
+            const str = message.toString();
+            const segments = str.split('\x1e');
+            for (const segment of segments) {
+                if (!segment) continue;
+                try {
+                    const msg = JSON.parse(segment);
+                    if (msg.protocol === 'json') {
+                        // Handshake response
+                        ws.send('{}\x1e');
+                    } else if (msg.type === 6) {
+                        // Ping
+                        ws.send('{"type":6}\x1e');
+                    }
+                } catch (e) {}
+            }
+        });
+    });
+
+    // Expose broadcast method for the API
+    app.locals.broadcastCheckboxUpdate = (id, isChecked, etag) => {
+        const payload = JSON.stringify({
+            type: 1,
+            target: 'CheckboxUpdated',
+            arguments: [{ id, isChecked, etag }]
+        }) + '\x1e';
+        
+        wss.clients.forEach(client => {
+            if (client.readyState === 1 /* WebSocket.OPEN */) {
+                client.send(payload);
+            }
+        });
+        
+        // Notify long-polling clients
+        for (const [connectionId, res] of longPollingClients) {
+            res.status(200).send(payload);
+        }
+        longPollingClients.clear();
+    };
+
 }).catch(err => {
     console.error("Failed to initialize storage", err);
     process.exit(1);
