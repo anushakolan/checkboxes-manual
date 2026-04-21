@@ -20,12 +20,12 @@ The frontend is an optimized web client designed for real-time collaboration:
 
 Built on Express (Node.js), the API coordinates state between the storage layer and connected clients:
 - **REST Endpoints**:
-  - `GET /api/checkboxes`: Reads and returns the complete state of all 1,000 checkboxes.
-  - `PUT /api/checkboxes/{id}`: Processes individual toggle requests, enforcing optimistic concurrency strictly via `If-Match` ETags.
+  - `GET /api/checkboxes`: Reads and returns the complete state of all 1,000 checkboxes. Includes `Cache-Control: no-cache` to ensure clients retrieve fresh data.
+  - `PUT /api/checkboxes/{id}`: Processes individual toggle requests, enforcing optimistic concurrency strictly via `etag` in the request body.
 - **Real-Time Hub** (`/hubs/checkboxes`): A SignalR Hub that broadcasts `CheckboxUpdated` events to all connected clients immediately after a successful PUT operation.
 - **Middleware**:
   - **Rate Limiting**: Protects backend capacity (10 req/sec for PUTs, 5 req/sec for GETs per IP).
-  - **Input/Security Validation**: Rejects invalid IDs (out of 0-999 range), malformed ETags, and oversized request bodies (>1KB).
+  - **Input/Security Validation**: Implements CORS defaults, rejects invalid IDs (out of 0-999 range), malformed ETags, and oversized request bodies (>1KB).
   - **Observability**: Injects OpenTelemetry distributed tracing to monitor `etag_conflict_rate` and track end-to-end component latency.
 
 ### Data Layer
@@ -62,13 +62,16 @@ Client → GET /api/checkboxes → Query Table (PartitionKey = "checkboxes") →
 1. Client sends: PUT /api/checkboxes/{id} with { isChecked: true, etag: "original-etag" }
 
 2. Server executes conditional update:
-   - If-Match: "original-etag"
+   - Check ETag provided in request matches current ETag in Storage
    - Replace entity with new IsChecked value
 
 3. Outcomes:
-   - HTTP 204: Success (entity updated, new ETag returned)
+   - HTTP 200: Success (entity updated, newly generated ETag and `isChecked` returned securely)
+   - HTTP 400: Invalid Request Body / ID
    - HTTP 412: Conflict (another user modified this checkbox)
    - HTTP 404: Checkbox doesn't exist
+   - HTTP 429: Rate Limit Exceeded
+   - HTTP 503: Storage Unavailable
 ```
 
 ### Conflict Resolution Flow
@@ -78,11 +81,11 @@ Client → GET /api/checkboxes → Query Table (PartitionKey = "checkboxes") →
 │ User A: Toggle checkbox #42          User B: Toggle checkbox #42            │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │ T1: Read entity #42 (ETag: "abc")    T2: Read entity #42 (ETag: "abc")     │
-│ T3: Update with If-Match "abc" ───────────────────────────────► SUCCESS    │
+│ T3: Update with ETag "abc" ───────────────────────────────► SUCCESS        │
 │     New ETag: "def"                                                         │
-│                                      T4: Update with If-Match "abc" ──► 412 │
+│                                      T4: Update with ETag "abc" ──────► 412 │
 │                                      T5: Re-read entity #42 (ETag: "def")  │
-│                                      T6: Update with If-Match "def" ► SUCCESS│
+│                                      T6: Update with ETag "def" ────► SUCCESS│
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
