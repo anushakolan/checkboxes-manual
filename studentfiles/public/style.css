@@ -1,0 +1,111 @@
+:root {
+  --primary-color: #2563eb;
+  --bg-color: #ffffff;
+  --border-color: #cbd5e1;
+  --hover-color: #f1f5f9;
+  --focus-ring: #60a5fa;
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: #f8fafc;
+  display: flex;
+  justify-content: center;
+}
+
+main {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.checkbox-grid {
+  display: grid;
+  gap: 4px;
+  justify-content: center;
+  align-content: center;
+  margin: 0 auto;
+  
+  /* Desktop (>=1024px): 40 cols */
+  grid-template-columns: repeat(40, 24px);
+  grid-template-rows: repeat(25, 24px);
+}
+
+.checkbox-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+}
+
+.custom-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color);
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  position: relative;
+}
+
+.custom-checkbox:hover {
+  background-color: var(--hover-color);
+  border-color: #94a3b8;
+}
+
+.custom-checkbox:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring);
+  border-color: var(--primary-color);
+}
+
+.custom-checkbox:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.custom-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Tablet (768px-1023px): 32 columns */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .checkbox-grid {
+    grid-template-columns: repeat(32, 24px);
+    grid-template-rows: repeat(32, 24px); /* Technically 32x31+8, handled by CSS grid flow */
+    grid-auto-rows: 24px;
+  }
+}
+
+/* Mobile (<768px): 20 columns */
+@media (max-width: 767px) {
+  main {
+    overflow-x: auto;
+    padding-bottom: 20px;
+  }
+  
+  .checkbox-grid {
+    grid-template-columns: repeat(20, 24px);
+    grid-template-rows: repeat(50, 24px);
+    grid-auto-rows: 24px;
+    justify-content: start; /* allow scroll if it goes offscreen */
+  }
+}
