@@ -22,7 +22,7 @@ Built on Express (Node.js), the API coordinates state between the storage layer 
 - **REST Endpoints**:
   - `GET /api/checkboxes`: Reads and returns the complete state of all 1,000 checkboxes. Includes `Cache-Control: no-cache` to ensure clients retrieve fresh data.
   - `PUT /api/checkboxes/{id}`: Processes individual toggle requests, enforcing optimistic concurrency strictly via `etag` in the request body.
-- **Real-Time Hub** (`/hubs/checkboxes`): A SignalR Hub that broadcasts `CheckboxUpdated` events to all connected clients immediately after a successful PUT operation.
+- **Real-Time Hub** (`/hubs/checkboxes`): A custom SignalR-compatible Hub built on the Node.js `ws` library that broadcasts `CheckboxUpdated` events. By negotiating WebSockets and LongPolling, it directly handles server-side `.emit()` capabilities without needing Azure SignalR Service for local development, immediately distributing the payload `{ id, isChecked, etag }` after a successful PUT operation.
 - **Middleware**:
   - **Rate Limiting**: Protects backend capacity (10 req/sec for PUTs, 5 req/sec for GETs per IP).
   - **Input/Security Validation**: Implements CORS defaults, rejects invalid IDs (out of 0-999 range), malformed ETags, and oversized request bodies (>1KB).
@@ -112,7 +112,7 @@ After a successful write, the server broadcasts the change to all connected clie
 |-----------|------------|-----------|
 | **Storage** | Azure Table Storage | Per-entity ETags enable fine-grained optimistic concurrency; supports ~1000 concurrent users; low cost; full Azurite support |
 | **Concurrency** | ETag + If-Match | Optimistic locking prevents lost updates without expensive distributed locks |
-| **Real-time** | SignalR | WebSocket-based push for instant updates; automatic fallback to long-polling |
+| **Real-time** | SignalR Client + custom `ws` Server | Minimal overhead using the standard `@microsoft/signalr` JavaScript client alongside a custom WS implementation mapping the SignalR JSON protocol (handshakes & keepalives), removing external service requirements for realtime distribution while automatically supporting long-polling fallback. |
 | **Backend** | Express (Node.js) | Native Azure SDK support; SignalR integration; high performance |
 | **Local Emulator** | Azurite | Full Table Storage API compatibility; no Azure subscription needed for development |
 
