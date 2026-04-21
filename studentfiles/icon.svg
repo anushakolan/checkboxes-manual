@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 185" width="220" height="185">
+  <defs>
+    <linearGradient id="docGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#EFF6FF"/>
+      <stop offset="100%" stop-color="#DBEAFE"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Clipboard body -->
+  <rect x="38" y="28" width="120" height="148" rx="10" fill="url(#docGrad)" stroke="#2563EB" stroke-width="3"/>
+
+  <!-- Clipboard clip -->
+  <rect x="72" y="18" width="52" height="20" rx="6" fill="#2563EB"/>
+  <circle cx="98" cy="22" r="5" fill="#DBEAFE"/>
+
+  <!-- Spec lines (section headers) -->
+  <rect x="56" y="52" width="60" height="5" rx="2" fill="#93C5FD"/>
+  <rect x="56" y="100" width="50" height="5" rx="2" fill="#93C5FD"/>
+  <rect x="56" y="142" width="55" height="5" rx="2" fill="#93C5FD"/>
+
+  <!-- Checkbox row 1: checked -->
+  <rect x="56" y="65" width="12" height="12" rx="2" fill="#10B981" stroke="#059669" stroke-width="1.5"/>
+  <polyline points="59,72 62,75 67,68" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="74" y="68" width="38" height="4" rx="2" fill="#CBD5E1"/>
+
+  <!-- Checkbox row 2: checked -->
+  <rect x="56" y="82" width="12" height="12" rx="2" fill="#10B981" stroke="#059669" stroke-width="1.5"/>
+  <polyline points="59,89 62,92 67,85" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="74" y="85" width="32" height="4" rx="2" fill="#CBD5E1"/>
+
+  <!-- Checkbox row 3: checked -->
+  <rect x="56" y="112" width="12" height="12" rx="2" fill="#10B981" stroke="#059669" stroke-width="1.5"/>
+  <polyline points="59,119 62,122 67,115" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="74" y="115" width="44" height="4" rx="2" fill="#CBD5E1"/>
+
+  <!-- Checkbox row 4: unchecked (in progress) -->
+  <rect x="56" y="129" width="12" height="12" rx="2" fill="white" stroke="#94A3B8" stroke-width="1.5"/>
+  <rect x="74" y="132" width="36" height="4" rx="2" fill="#CBD5E1"/>
+
+  <!-- Checkbox row 5: checked -->
+  <rect x="56" y="152" width="12" height="12" rx="2" fill="#10B981" stroke="#059669" stroke-width="1.5"/>
+  <polyline points="59,159 62,162 67,155" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="74" y="155" width="40" height="4" rx="2" fill="#CBD5E1"/>
+
+  <!-- Pencil (manual/human authoring) -->
+  <g transform="translate(148, 108) rotate(-45)">
+    <!-- Pencil body -->
+    <rect x="0" y="0" width="14" height="62" rx="2" fill="#F59E0B"/>
+    <rect x="0" y="0" width="14" height="62" rx="2" fill="none" stroke="#D97706" stroke-width="1.5"/>
+    <!-- Pencil stripe -->
+    <rect x="5" y="0" width="4" height="52" fill="#FBBF24"/>
+    <!-- Pencil tip -->
+    <polygon points="0,62 7,76 14,62" fill="#FDE68A" stroke="#D97706" stroke-width="1.5" stroke-linejoin="round"/>
+    <polygon points="4,66 7,76 10,66" fill="#475569"/>
+    <!-- Eraser -->
+    <rect x="0" y="-6" width="14" height="8" rx="2" fill="#FB7185" stroke="#E11D48" stroke-width="1"/>
+  </g>
+</svg>
