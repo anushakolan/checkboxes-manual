@@ -46,6 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Target constraint: Init render < 100ms, DOM nodes ≤ 3,000 nodes (1000 wrappers + 1000 inputs = 2000 nodes added)
     const fragment = document.createDocumentFragment();
     
+    // Clear any existing children to prevent duplicates during re-initialization (e.g., in tests)
+    grid.innerHTML = '';
+    
     for (let i = 0; i < 1000; i++) {
         const wrapper = document.createElement('div');
         wrapper.className = 'checkbox-wrapper';

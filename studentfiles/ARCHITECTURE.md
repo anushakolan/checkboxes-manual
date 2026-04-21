@@ -14,7 +14,7 @@ The frontend is an optimized web client designed for real-time collaboration:
 - **Offline & Queueing Support**: Intelligently queues toggle requests when the user goes offline or during network interruptions, processing them transparently once the connection recovers. 
 - **Real-Time Sync**: Uses a persistent SignalR connection to instantly reflect changes made by other users.
 - **Conflict Handling**: Intercepts HTTP 412 sequence conflicts, refetches state, and automatically reverts or retries to stay in sync.
-- **Rendering**: Implements a responsive CSS Grid (40×25 on desktop) optimized to keep DOM node count low (≤ 3,000) while supporting full keyboard navigation and screen readers (`aria-live` regions and specific status indicators).
+- **Rendering**: Implements a responsive CSS Grid (40×25 on desktop) optimized to keep DOM node count low (≤ 3,000) while supporting full keyboard navigation and screen readers (`aria-live` regions and specific status indicators). Uses idempotent initialization and `DocumentFragment` for fast, efficient DOM updates (crucial for < 100ms render goals and test stability).
 
 ### API Layer
 
@@ -26,7 +26,7 @@ Built on Express (Node.js), the API coordinates state between the storage layer 
 - **Middleware**:
   - **Rate Limiting**: Protects backend capacity (10 req/sec for PUTs, 5 req/sec for GETs per IP).
   - **Input/Security Validation**: Implements CORS defaults, rejects invalid IDs (out of 0-999 range), malformed ETags, and oversized request bodies (>1KB).
-  - **Observability**: Injects OpenTelemetry distributed tracing to monitor `etag_conflict_rate` and track end-to-end component latency.
+  - **Observability**: (Planned) Injecting OpenTelemetry distributed tracing to monitor `etag_conflict_rate` and track end-to-end component latency.
 
 ### Data Layer
 
